@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: express
+spec:
+  type: NodePort
+  ports:
+    - nodePort: 30080 # ワーカーノードのポート番号
+      port: 80 # Serviceのポート番号
+      targetPort: 3000 # Podのポート番号
+      protocol: TCP
+  selector:
+    app: express-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: express-app
+  template:
+    metadata:
+      labels:
+        app: express-app
+    spec:
+      containers:
+        - name: express
+          image: express-api-server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
