@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rabbitmq-publish
+spec:
+  template:
+    spec:
+      containers:
+        - name: rabbitmq-client
+          image: ghcr.io/kedacore/rabbitmq-client:v1.0
+          imagePullPolicy: Never
+          command:
+            [
+              "send",
+              "amqp://user:PASSWORD@rabbitmq-headless.default.svc.cluster.local:5672",
+              "300",
+            ]
+      restartPolicy: Never
+  backoffLimit: 4

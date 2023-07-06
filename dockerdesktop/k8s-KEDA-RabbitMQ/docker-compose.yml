@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  rabbitmq-client:
+    container_name: rabbitmq-client
+    image: ghcr.io/kedacore/rabbitmq-client:v1.0
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - HTTP_PROXY=$HTTP_PROXY
+        - http_proxy=$http_proxy
+        - HTTPS_PROXY=$HTTPS_PROXY
+        - https_proxy=$https_proxy
