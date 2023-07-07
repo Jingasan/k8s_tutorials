@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rabbitmq-sender
+spec:
+  ttlSecondsAfterFinished: 0 # Job終了後にJobを残す時間[s]
+  template:
+    spec:
+      containers: # [Must] 起動するコンテナの設定
+        - name: rabbitmq-sender
+          image: rabbitmq-sender:latest
+          imagePullPolicy: Never
+          env:
+            - name: AMQP_URL
+              value: "amqp://user:PASSWORD@rabbitmq-headless.default.svc.cluster.local:5672"
+      restartPolicy: Never
+  backoffLimit: 1 # [Option] Job起動失敗時の再試行回数 6(Default)

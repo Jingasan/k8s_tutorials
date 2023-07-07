@@ -1,0 +1,23 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsx esbuild.config.ts",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/amqplib": "^0.10.1",
+    "@types/node": "^20.3.2",
+    "esbuild": "^0.18.10",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.5"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3"
+  }
+}

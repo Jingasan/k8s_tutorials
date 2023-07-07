@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  rabbitmq-sender:
+    container_name: rabbitmq-sender
+    image: rabbitmq-sender:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - HTTP_PROXY=$HTTP_PROXY
+        - http_proxy=$http_proxy
+        - HTTPS_PROXY=$HTTPS_PROXY
+        - https_proxy=$https_proxy
+    environment:
+      - AMQP_URL=amqp://user:PASSWORD@rabbitmq-headless.default.svc.cluster.local:5672

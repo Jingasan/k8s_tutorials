@@ -1,0 +1,38 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: scaledjob-receiver
+  labels:
+    my-label: jobcontainer
+  annotations:
+    my-annotation: annotation-jobcontainer
+spec:
+  jobTargetRef:
+    parallelism: 1 # [Option] 起動するPod数 1 (Default)
+    completions: 1 # [Option] 正常終了を期待するPod数 1 (Default)
+    backoffLimit: 0 # [Option] ジョブのエラー終了時の再試行回数 6 (Default)
+    template:
+      metadata:
+        labels:
+          app: scaledjob-receiver
+      spec:
+        containers: # [Must] 起動するコンテナの設定
+          - name: scaledjob-receiver
+            image: rabbitmq-receiver:latest
+            imagePullPolicy: Never
+            env:
+              - name: AMQP_URL
+                value: "amqp://user:PASSWORD@rabbitmq-headless.default.svc.cluster.local:5672"
+  minReplicaCount: 0 # [Option] スケール数の下限値 0(Default)
+  maxReplicaCount: 3 # [Option] スケール数の上限値 100(Default)
+  pollingInterval: 10 # [Option] イベントソースを確認する間隔 30[s](Default)
+  successfulJobsHistoryLimit: 0 # [Option] 保持する必要がある正常終了したジョブ数 100 (Default)
+  failedJobsHistoryLimit: 0 # [Option] 保持する必要がある異常終了したジョブ数 100 (Default)
+  triggers: # [Must] Job実行のトリガー
+    - type: rabbitmq # [Must] トリガーとするイベントソース
+      metadata:
+        host: "amqp://user:PASSWORD@rabbitmq-headless.default.svc.cluster.local:5672" # [Must] AMQP URL
+        queueName: queue # [Must] キュー名
+        mode: QueueLength # [Must] QueueLength/MessageRate
+        value: "1" # [Must] トリガーとなるキューの長さ
+
