@@ -1,0 +1,15 @@
+apiVersion: sources.knative.dev/v1alpha1
+kind: RedisStreamSource
+metadata:
+  name: redis-source
+  namespace: default
+spec:
+  address: redis://redis-app.default.svc.cluster.local:6379/1
+  stream: teststream
+  group: group1
+  sink:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: event-display
+      namespace: default

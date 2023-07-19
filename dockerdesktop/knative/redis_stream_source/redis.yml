@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-app
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis-app
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-app
+  template:
+    metadata:
+      labels:
+        app: redis-app
+    spec:
+      containers:
+        - name: redis-app
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
