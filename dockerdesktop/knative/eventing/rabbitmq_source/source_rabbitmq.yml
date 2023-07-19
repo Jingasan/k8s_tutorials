@@ -1,0 +1,20 @@
+apiVersion: sources.knative.dev/v1alpha1
+kind: RabbitmqSource
+metadata:
+  name: rabbitmq-source
+  namespace: default
+  annotations:
+    rabbitmq.eventing.knative.dev/cpu-limit: "100m"
+spec:
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: default
+  rabbitmqResourcesConfig:
+    exchangeName: "eventing-rabbitmq-source"
+    queueName: "eventing-rabbitmq-source"
+  sink:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: event-display
+      namespace: default

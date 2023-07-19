@@ -1,0 +1,24 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+  namespace: default
+spec:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+    limits:
+      cpu: 400m
+  service:
+    type: LoadBalancer
+  override:
+    statefulSet:
+      spec:
+        template:
+          spec:
+            containers:
+              - name: rabbitmq
+                env:
+                  - name: ERL_MAX_PORTS
+                    value: "4096"
