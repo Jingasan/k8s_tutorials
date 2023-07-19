@@ -1,0 +1,16 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: project
+spec:
+  template:
+    spec:
+      imagePullSecrets:
+        - name: container-registry
+      containers:
+        - image: ghcr.io/jingasan/knative-functions:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TARGET
+              value: "World"
