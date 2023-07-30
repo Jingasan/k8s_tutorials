@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+spec:
+  type: LoadBalancer
+  ports:
+    - name: "http-s3api-port"
+      protocol: "TCP"
+      port: 9000 # ClusterIPで受け付けるPort番号
+      targetPort: 9000 # 転送先のコンテナのPort番号
+  selector:
+    app: minio
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: minio
+  name: minio
+spec:
+  replicas: 1
+  selector: # [Must] StatefulSetによって対象となるPodのラベルを指定する。
+    matchLabels:
+      app: minio # [Must] Podのlabelsに指定したラベルを記述する。
+  serviceName: minio
+  template: # [Must] Podのテンプレート
+    metadata: # [Must] デプロイするPodのメタデータ
+      labels:
+        app: minio # [Must] Podのラベル名
+    spec: # [Must] デプロイするPodの詳細な情報を記述する。
+      containers:
+        - name: minio
+          image: docker.io/minio/minio:RELEASE.2021-04-06T23-11-00Z
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - /usr/bin/minio server /data
+          env:
+            - name: MINIO_ROOT_USER # ROOTユーザー名
+              value: root
+            - name: MINIO_ROOT_PASSWORD # ROOTパスワード
+              value: password
+          resources:
+            limits: # Podが利用可能な上限値
+              memory: 512Mi
+              cpu: "1"
+            requests: # Podが要求する下限値
+              memory: 256Mi
+              cpu: "0.2"
+          volumeMounts:
+            - name: localvolume
+              mountPath: /data
+      volumes:
+        - name: localvolume
+          persistentVolumeClaim:
+            claimName: dynamic-provisioning-claim
+      terminationGracePeriodSeconds: 0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-provisioning-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
