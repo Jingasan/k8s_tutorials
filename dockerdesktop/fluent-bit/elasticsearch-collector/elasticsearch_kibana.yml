@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  labels:
+    app: elasticsearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  serviceName: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+          ports:
+            - containerPort: 9200
+          env:
+            - name: "discovery.type"
+              value: "single-node"
+            - name: "xpack.security.enabled"
+              value: "false"
+            - name: "bootstrap.memory_lock"
+              value: "true"
+            - name: "ES_JAVA_OPTS"
+              value: "-Xms512m -Xmx512m"
+          resources:
+            limits: # Podが利用可能な上限値
+              memory: 1024Mi
+              cpu: "1"
+            requests: # Podが要求する下限値
+              memory: 512Mi
+              cpu: "0.2"
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: esvolume
+      volumes:
+        - name: esvolume
+          persistentVolumeClaim:
+            claimName: dynamic-provisioning-claim1
+      terminationGracePeriodSeconds: 0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-provisioning-claim1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+spec:
+  type: LoadBalancer
+  ports:
+    - name: "http-port"
+      protocol: TCP
+      port: 5601
+      targetPort: 5601
+  selector:
+    app: kibana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:8.9.0
+          ports:
+            - containerPort: 5601
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch.default.svc.cluster.local:9200
+          resources:
+            limits: # Podが利用可能な上限値
+              memory: 1024Mi
+              cpu: "1"
+            requests: # Podが要求する下限値
+              memory: 512Mi
+              cpu: "0.2"
+---
+
