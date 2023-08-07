@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: echoserver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echoserver1
+  namespace: echoserver
+spec:
+  selector:
+    app: echoserver1
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echoserver1
+  namespace: echoserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: echoserver1
+  template:
+    metadata:
+      labels:
+        app: echoserver1
+    spec:
+      containers:
+        - name: echoserver1
+          image: ealen/echo-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: PORT
+              value: "80"
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
