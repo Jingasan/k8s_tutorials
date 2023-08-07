@@ -1,0 +1,13 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: knative-cluster # EKSクラスター名
+  region: ap-northeast-1 # リージョン
+
+nodeGroups:
+  - name: knative-cluster-ng # ノードグループ名
+    instanceType: t3.medium # EC2インスタンスタイプ
+    desiredCapacity: 3 # ワーカーノード(EC2インスタンス)数
+    minSize: 3 # 最小ワーカーノード数
+    maxSize: 3 # 最大ワーカーノード数
