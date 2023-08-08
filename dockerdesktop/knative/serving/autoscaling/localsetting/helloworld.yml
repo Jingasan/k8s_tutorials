@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hello
+  namespace: default
+spec:
+  template:
+    metadata:
+      # オートスケーリングの設定
+      annotations:
+        # 各Podで許容する1秒あたりの同時リクエスト数(Default: 200)
+        autoscaling.knative.dev/target: "50"
+        autoscaling.knative.dev/metric: "rps"
+        # Service作成直後に立ち上げる初期Pod数(Default: 1)
+        autoscaling.knative.dev/initial-scale: "0"
+        # Pod数の下限：この数だけ常に残す
+        # Default: 0 (グローバル設定でゼロスケールが有効な場合)
+        autoscaling.knative.dev/min-scale: "3"
+        # Pod数の上限：この数以上にはオートスケールしない
+        # Default: 0 (無制限)
+        autoscaling.knative.dev/max-scale: "3"
+    spec:
+      containerConcurrency: 100 # 各Podで許容する同時リクエスト数のハード制限
+      containers:
+        - image: ghcr.io/knative/helloworld-go:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TARGET
+              value: "World"

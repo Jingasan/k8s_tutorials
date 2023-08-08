@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-autoscaler
+  namespace: knative-serving
+data:
+  # ゼロスケーリングの有効化(Default: true)
+  enable-scale-to-zero: "true"
+  # 各Podで許容する同時リクエスト数(Default: 100)
+  container-concurrency-target-default: "200"
+  # 各ServiceのPod数の下限：この数だけ常に残す
+  # Default: 0 (enable-scale-to-zero: trueの場合)
+  min-scale: "3"
+  # 各ServiceのPod数の上限：この数以上にはスケールしない
+  # Default: 0 (無制限)
+  max-scale: "10"
+  # 全Serviceの総Pod数の上限：この数以上にはスケールしない
+  # Default: 0 (無制限)
+  max-scale-limit: "100"
+  # Service作成直後に立ち上げる初期Pod数(Default: 1)
+  initial-scale: "0"
+  # Service作成直後に立ち上がる初期Pod数に0を許容するか
+  allow-zero-initial-scale: "true"
