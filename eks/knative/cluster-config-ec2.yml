@@ -8,6 +8,6 @@ metadata:
 nodeGroups:
   - name: knative-cluster-ng # ノードグループ名
     instanceType: t3.medium # EC2インスタンスタイプ
-    desiredCapacity: 3 # ワーカーノード(EC2インスタンス)数
-    minSize: 3 # 最小ワーカーノード数
-    maxSize: 3 # 最大ワーカーノード数
+    desiredCapacity: 2 # ワーカーノード(EC2インスタンス)数
+    minSize: 2 # 最小ワーカーノード数
+    maxSize: 2 # 最大ワーカーノード数
