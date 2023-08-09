@@ -1,0 +1,31 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: express
+  namespace: default
+spec:
+  template:
+    metadata:
+      # オートスケーリングの設定
+      annotations:
+        # 各Podで許容する1秒あたりの同時リクエスト数(Default: 200)
+        autoscaling.knative.dev/target: "50"
+        autoscaling.knative.dev/metric: "rps"
+        # Pod数の下限：この数だけ常に残す
+        # (Default: 0 (グローバル設定でゼロスケールが有効な場合))
+        autoscaling.knative.dev/min-scale: "0"
+        # Pod数の上限：この数以上にはオートスケールしない(Default: 0 (無制限))
+        autoscaling.knative.dev/max-scale: "1"
+    spec:
+      containers:
+        - image: dev.local/express-api-server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
