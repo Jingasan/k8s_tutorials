@@ -14,7 +14,7 @@ spec:
   type: ClusterIP
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: TCP
 ---
 apiVersion: apps/v1
@@ -34,13 +34,13 @@ spec:
     spec:
       containers:
         - name: echoserver1
-          image: ealen/echo-server:latest
+          image: ghcr.io/knative/helloworld-go:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
-            - name: PORT
-              value: "80"
+            - name: TARGET
+              value: "echo server 1"
           resources:
             limits:
               memory: 512Mi
