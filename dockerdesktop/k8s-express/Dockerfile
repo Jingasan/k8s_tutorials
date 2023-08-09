@@ -1,5 +1,5 @@
 ##### Build environment #####
-FROM node:16.19-alpine as builder
+FROM node:20-alpine as builder
 
 # Express APIサーバーのビルド
 COPY express /express
@@ -9,9 +9,9 @@ RUN npm run build
 
 
 ##### Production environment #####
-FROM node:16.19-alpine as releaser
+FROM gcr.io/distroless/nodejs20-debian11:nonroot as releaser
+USER nonroot
 
 # Express APIサーバーのインストール
-COPY --from=builder /express /express
-WORKDIR /express
-ENTRYPOINT ["node", "dist/index.js"]
+COPY --from=builder /express/dist /express/dist
+CMD ["/express/dist/index.js"]
