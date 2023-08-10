@@ -57,15 +57,50 @@ metadata:
   name: nginx-conf
 data:
   nginx.conf: |
+    # 実行ユーザーの設定
+    user nginx;
+
+    # 実行プロセス数の設定
+    worker_processes  auto;
+
+    # エラーログの保存先と出力ログレベルの設定
+    # 低い順に debug/info/notice/warn/error/crit/alert/emerg
+    error_log  /var/log/nginx/error.log info;
+
+    # その他の設定ファイルの読み込み
+    # include /usr/local/etc/nginx/conf.d/ssl.conf
+
+    # パフォーマンス関連の設定
     events {
+      # コネクション数の制限
       worker_connections  16;
     }
 
+    # Webサーバー関連の設定
     http {
+      # アクセスログのフォーマットの設定
+      log_format  main
+              'remote_addr:$remote_addr\t'
+              'time_local:$time_local\t'
+              'method:$request_method\t'
+              'uri:$request_uri\t'
+              'host:$host\t'
+              'status:$status\t'
+              'bytes_sent:$body_bytes_sent\t'
+              'referer:$http_referer\t'
+              'useragent:$http_user_agent\t'
+              'forwardedfor:$http_x_forwarded_for\t'
+              'request_time:$request_time';
+
+      # アクセスログの保存先
+      access_log    /var/log/nginx/access.log main;
+
+      # 仮想サーバーの設定
       server {
+        # ポート番号の指定
         listen 80;
 
-        # /api/~ へのリクエストは http://express:3000/api/~ にリバースプロキシする
+        # /api/~ へのリクエストは http://express.default.svc.cluster.local/api/~ にリバースプロキシする
         location /api/ {
           resolver kube-dns.kube-system.svc.cluster.local valid=5s;
           proxy_pass  http://express.default.svc.cluster.local;
