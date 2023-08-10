@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx-app
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+          volumeMounts:
+            - mountPath: /etc/nginx
+              readOnly: true
+              name: nginx-conf
+      # 先ほど定義したConfigMapをvolumesとして宣言している
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    events {
+      worker_connections  16;
+    }
+
+    http {
+      server {
+        listen 80;
+
+        # /api/~ へのリクエストは http://express:3000/api/~ にリバースプロキシする
+        location /api/ {
+          resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+          proxy_pass  http://express.default.svc.cluster.local;
+          proxy_http_version 1.1;
+        }
+
+        # rootのコンテンツを返す
+        location / {
+          root  /usr/share/nginx/html;
+          index index.html;
+        }
+      }
+    }
