@@ -11,4 +11,4 @@ nodeGroups:
     desiredCapacity: 2 # ワーカーノード(EC2インスタンス)数
     minSize: 2 # 最小ワーカーノード数
     maxSize: 2 # 最大ワーカーノード数
-    volumeSize: 20 # EBS20GB(Default:8GB)
+    volumeSize: 20 # EBSボリュームサイズ(Default:8GB)
