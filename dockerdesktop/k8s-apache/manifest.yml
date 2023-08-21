@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: apache
 spec:
-  type: LoadBalancer
+  type: LoadBalancer # アプリを外部に公開
   ports:
     - name: http
       port: 80
@@ -28,14 +28,14 @@ spec:
     spec:
       containers:
         - name: apache
-          image: httpd:latest
+          image: httpd:latest # コンテナイメージの指定
           ports:
-            - containerPort: 80
+            - containerPort: 80 # コンテナの公開ポート番号
           resources:
-            limits:
+            limits: # PodのCPU/メモリ上限値の設定
               memory: 512Mi
               cpu: "1"
-            requests:
+            requests: # PodのCPU/メモリ下限値の設定
               memory: 256Mi
               cpu: "0.2"
 ---
@@ -49,12 +49,13 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: apache
-  minReplicas: 1
-  maxReplicas: 8
-  metrics:
+  minReplicas: 1 # Pod数の最小値
+  maxReplicas: 8 # Pod数の最大値
+  metrics: # スケーリングの条件
     - type: Resource
       resource:
         name: cpu
+        # Podの平均CPU稼働率が80%を超えたらスケールアウト
         target:
           type: Utilization
           averageUtilization: 80
