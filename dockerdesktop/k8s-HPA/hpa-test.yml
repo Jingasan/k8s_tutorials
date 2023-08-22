@@ -34,7 +34,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: hpa-app
+    name: hpa-app # オートスケーリング対象のリソース名
   minReplicas: 1 # Pod数の最小値
   maxReplicas: 8 # Pod数の最大値
   metrics: # スケーリングの条件
