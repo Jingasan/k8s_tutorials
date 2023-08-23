@@ -4,7 +4,7 @@ kind: ClusterConfig
 metadata:
   name: knative-cluster # EKSクラスター名
   region: ap-northeast-1 # リージョン
-  version: "1.27"
+  version: "1.27" # Kubernetes Version
 
 nodeGroups:
   - name: knative-cluster-ng # ノードグループ名
