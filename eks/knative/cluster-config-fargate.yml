@@ -1,0 +1,23 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: knative-cluster-fargate # EKSクラスター名
+  region: ap-northeast-1 # リージョン
+  version: "1.27" # Kubernetes Version
+
+# Knative Profile の設定
+fargateProfiles:
+  - name: default-profile
+    selectors:
+      # Podの起動を許可する名前空間
+      - namespace: default
+      - namespace: kube-system
+      - namespace: kube-node-lease
+      - namespace: kube-public
+  - name: knative-profile
+    selectors:
+      # Podの起動を許可する名前空間
+      - namespace: knative-serving
+      - namespace: knative-eventing
+      - namespace: kourier-system
